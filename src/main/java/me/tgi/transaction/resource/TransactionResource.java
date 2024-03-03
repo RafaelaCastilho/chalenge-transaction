@@ -1,6 +1,5 @@
 package me.tgi.transaction.resource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -8,8 +7,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.RequiredArgsConstructor;
 import me.tgi.transaction.model.Company;
-import me.tgi.transaction.resource.dto.TransactionDto;
+import me.tgi.transaction.model.Transaction;
 import me.tgi.transaction.service.TransactionService;
 import me.tgi.transaction.utils.ValidatorHelper;
 
@@ -19,34 +19,28 @@ import me.tgi.transaction.utils.ValidatorHelper;
  * Utiliza a anotação @RequestMapping para mapear os endpoints relacionados a transações para "/transaction".
  */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/transaction")
 public class TransactionResource {
 	private final TransactionService transactionService;
 	private final ValidatorHelper validatorHelper;
 
-	@Autowired
-	public TransactionResource(TransactionService transactionService, ValidatorHelper validatorHelper) {
-		this.transactionService = transactionService;
-		this.validatorHelper = validatorHelper;
-	}
-
     /**
      * Endpoint POST para executar uma transação com base nos dados fornecidos.
      *
-     * @param transactionDto Objeto que representa os dados da transação recebidos no corpo da requisição.
      * @return Um objeto resultante da execução da transação.
      */
 	@PostMapping
-	public Object executeTransaction(@RequestBody TransactionDto transactionDto) {
-		if (!validatorHelper.CPForCNPJ(transactionDto.getCpf())) {
+	public Object executeTransaction(@RequestBody Transaction transaction) {
+		if (!validatorHelper.CPForCNPJ(transaction.getCpf())) {
 			return "CPF inválido.";
 		}
 
-		if (!validatorHelper.CPForCNPJ(transactionDto.getCnpj())) {
+		if (!validatorHelper.CPForCNPJ(transaction.getCnpj())) {
 			return "CNPJ inválido.";
 		}
-
-		return transactionService.executeTransaction(transactionDto);
+		
+		return transactionService.executeTransaction(transaction);
 	}
 
     /**

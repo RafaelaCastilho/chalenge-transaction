@@ -1,19 +1,20 @@
 package me.tgi.transaction.service;
 
 import me.tgi.transaction.model.Company;
-import me.tgi.transaction.resource.dto.TransactionDto;
+import me.tgi.transaction.model.Transaction;
+import me.tgi.transaction.repository.TransactionRepository;
 
 /**
  * Interface que define os serviços relacionados a transações.
  */
 public interface TransactionService {
 	/**
-     * Realiza uma transação com base nos dados fornecidos no objeto {@link TransactionDto}.
+     * Realiza uma transação com base nos dados fornecidos no objeto {@link TransactionRepository}.
      *
-     * @param transactionDto Objeto que representa os dados da transação a ser executada.
+     * @param transactionRepository Objeto que representa os dados da transação a ser executada.
      * @return Um objeto resultante da execução da transação.
      */
-	Object executeTransaction(TransactionDto transacaoDto);
+	Object executeTransaction(Transaction transaction);
 	
 	/**
      * Obtém informações de uma empresa com base no CNPJ fornecido.

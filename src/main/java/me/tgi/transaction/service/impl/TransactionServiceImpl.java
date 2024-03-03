@@ -5,8 +5,9 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import me.tgi.transaction.enumeration.TypeTransaction;
 import me.tgi.transaction.model.Company;
+import me.tgi.transaction.model.Transaction;
 import me.tgi.transaction.repository.CompanyRepository;
-import me.tgi.transaction.resource.dto.TransactionDto;
+import me.tgi.transaction.repository.TransactionRepository;
 import me.tgi.transaction.service.TransactionService;
 
 
@@ -19,6 +20,7 @@ import me.tgi.transaction.service.TransactionService;
 @Service
 public class TransactionServiceImpl implements TransactionService {
 	public final CompanyRepository companyRepository;
+	public final TransactionRepository transactionRepository;
 
     /**
      * Executa uma transação com base nos dados fornecidos no objeto {@link TransactionDto}.
@@ -27,25 +29,25 @@ public class TransactionServiceImpl implements TransactionService {
      * @return Um objeto resultante da execução da transação.
      */
 	@Override
-	public Object executeTransaction(TransactionDto transactionDto) {
+	public Object executeTransaction(Transaction transaction) {
 		// Obter a empresa com base no CNPJ fornecido
-		Company company = getCompany(transactionDto.getCnpj().replaceAll("[^0-9]", ""));
+		Company company = getCompany(transaction.getCnpj().replaceAll("[^0-9]", ""));
 		
 		// Obter o saldo atual da empresa	
 		Double amountUpdate = company.getAmount();
 		
         // Calcular o desconto com base na taxa associada à empresa
-		Double discount = transactionDto.getValue() * (company.getTax() / 100);
+		Double discount = transaction.getValueTransaction() * (company.getTax() / 100);
 
         // Verificar o tipo de transação e atualizar o saldo da empresa
-		if (transactionDto.getType() == TypeTransaction.DEPOSIT) {
+		if (transaction.getType() == TypeTransaction.DEPOSIT) {
 
-			amountUpdate += transactionDto.getValue() - discount;
+			amountUpdate += transaction.getValueTransaction() - discount;
 
-		} else if (transactionDto.getType() == TypeTransaction.WITHDRAWAL) {
+		} else if (transaction.getType() == TypeTransaction.WITHDRAWAL) {
             // Verificar se há saldo suficiente para o saque
-			if (amountUpdate > transactionDto.getValue() - discount) {
-				amountUpdate -= transactionDto.getValue() - discount;
+			if (amountUpdate > transaction.getValueTransaction() - discount) {
+				amountUpdate -= transaction.getValueTransaction() - discount;
 			} else {
 				return "Saldo insuficiente.";
 			}
@@ -54,8 +56,8 @@ public class TransactionServiceImpl implements TransactionService {
         // Atualizar o saldo da empresa e salvar no repositório
 		company.setAmount(amountUpdate);
 		companyRepository.save(company);
-		
-		return transactionDto;
+		transactionRepository.save(transaction);
+		return transaction;
 	}
 
     /**

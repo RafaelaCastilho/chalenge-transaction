@@ -20,7 +20,6 @@ import me.tgi.transaction.enumeration.TypeTransaction;
  * A anotação @JsonIgnoreProperties é usada para ignorar propriedades específicas durante a serialização/desserialização JSON.
  */
 @AllArgsConstructor
-@Builder
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handle"})
@@ -33,4 +32,7 @@ public class Transaction {
 	@Enumerated
 	private TypeTransaction type;
 	private Double valueTransaction;
+	private Double tax;
+	private String cpf;
+	private String cnpj;
 }
